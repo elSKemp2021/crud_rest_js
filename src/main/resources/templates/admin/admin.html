@@ -1,0 +1,226 @@
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <title>REST</title>
+</head>
+
+<body>
+    <!-- Навигация-->
+    <nav class="navbar bg-dark justify-content-between" style="margin-bottom: 20px">
+        <p class="navbar-brand text-white">
+            <b><span th:text="${activeUser.getEmail()}"></span></b> with roles:
+            <span th:text="${activeUser.getRoleString()}"></span>
+        </p>
+        <a class="nav-link text-white-50" href="/logout">Logout</a>
+    </nav>
+    <div class="container-fluid text-center row content h-100 ">
+        <!-- Сайдбар -->
+        <div class="list-group col-sm-2 sidenav" id="list-tab" role="tablist">
+            <a class="list-group-item list-group-item-action active" id="list-admin" data-toggle="list" href="#ADMIN" role="tab">Admin</a>
+            <a class="list-group-item list-group-item-action" id="list-user" data-toggle="list" href="#USER" role="tab">User</a>
+        </div>
+        <!-- Основной блок -->
+        <div class="col-sm-10 text-left tab-content" id="nav-tabContent">
+            <!-- Панель администратора -->
+            <div class="tab-pane fade show active tab-content" id="ADMIN" role="tabpanel">
+                <h1>Admin panel</h1>
+                <div class="border" >
+                    <ul class="nav nav-tabs">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#usersTable">Users Table</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#addUser">New User</a>
+                        </li>
+                    </ul>
+                    <!-- Блоки с контентом -->
+                    <div class="tab-content">
+                        <!-- Таблица пользователей -->
+                        <div class="tab-pane show active fade" id="usersTable">
+                            <div class="border bg-light">
+                                <h3 style="text-align: left; margin: 1%">All Users</h3>
+                            </div>
+                            <div style="margin-left:1%;" onload="getAllUsers()">
+                                <table class="table table-striped" id="allUsers">
+                                    <thead>
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>First Name</th>
+                                            <th>Last Name</th>
+                                            <th>Age</th>
+                                            <th>Email</th>
+                                            <th>Username</th>
+                                            <th>Role</th>
+                                            <th>Edit</th>
+                                            <th>Delete</th>
+                                        </tr>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                        <!-- Редактирование пользователя -->
+                        <div class="modal-dialog modal-content" id="editUser">
+                            <form id="editUserForm">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit User</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeButtonInEditHeader">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body mx-auto text-center" style="background: white; width : 40%">
+                                    <p class="text-center">Id</p>
+                                    <input type="number" class="form-control" name="id" id="editUserId" readonly/>
+        
+                                    <p>First Name</p>
+                                    <input type="text" class="form-control" name="name" id="editUserName"/>
+        
+                                    <p>Last Name</p>
+                                    <input type="text" class="form-control" name="lastname" id="editUserLastname"/>
+        
+                                    <p>Age</p>
+                                    <input type="number" class="form-control" name="age" id="editUserAge"/>
+        
+                                    <p>Email</p>
+                                    <input type="text" class="form-control" name="email" id="editUserEmail"/>
+        
+                                    <p>Username</p>
+                                    <input type="text" class="form-control" name="username" id="editUserUsername"/>
+        
+                                    <p>Password</p>
+                                    <input type="text" class="form-control" name="password" id="editUserPassword"/>
+        
+                                    <p>Role</p>
+                                    <select multiple class="form-control" name="role_id" readonly>
+                                        <option value="ROLE_ADMIN">ADMIN</option>
+                                        <option value="ROLE_USER">USER</option>
+                                    </select>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeButtonInEditUserForm">Close</button>
+                                    <button type="submit" class="btn btn-primary" id="editButtonInEditUserForm">Edit</button>
+                                </div>
+                            </form>
+                        </div>
+                        <!-- Удаление пользователя -->
+                        <div class="modal hide" id="deleteUser">
+                            <div class="modal-dialog modal-content">
+                                <form id="deleteUserForm">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Delete User</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close" id="closeButtonInDeleteHeader">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+                                    <div class="mx-auto modal-body text-center" style="background: white; width: 40%;">
+                                        <p class="text-center">Id</p>
+                                        <input type="number" class="form-control" name="id" id="deleteUserId" readonly/>
+    
+                                        <p>First Name</p>
+                                        <input type="text" class="form-control" name="name" id="deleteUserName" readonly/>
+    
+                                        <p>Last Name</p>
+                                        <input type="text" class="form-control" name="lastname" id="deleteUserLastname" readonly/>
+    
+                                        <p>Age</p>
+                                        <input type="number" class="form-control" name="age" id="deleteUserAge" readonly/>
+    
+                                        <p>Email</p>
+                                        <input type="text" class="form-control" name="email" id="deleteUserEmail" readonly/>
+    
+                                        <p>Username</p>
+                                        <input type="text" class="form-control" name="username" id="deleteUserUsername" readonly/>
+    
+                                        <p>Password</p>
+                                        <input type="text" class="form-control" name="password" id="deleteUserPassword" readonly/>
+
+                                        <p>Role</p>
+                                        <select multiple class="form-control" name="role_id" readonly>
+                                            <option value="ROLE_ADMIN">ADMIN</option>
+                                            <option value="ROLE_USER">USER</option>
+                                        </select>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeButtonInDeleteUserForm">Close</button>
+                                        <button type="submit" class="btn btn-primary" id="deleteButtonInDeleteUserForm">Delete</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Добавление пользователя -->
+                        <div class="tab-pane fade" id="addUser">
+                            <div class="border bg-light">
+                                <h3 style="text-align: left; margin: 1%">All Users</h3>
+                            </div>
+                            <form class="mx-auto text-center" style="width: 20%; background: white; margin:1%" method="post" id="addUserForm">
+                                <p>First Name</p>
+                                <input type="text" class="form-control" name="name" id="addUserName"/>
+
+                                <p>Last Name</p>
+                                <input type="text" class="form-control" name="lastname" id="addUserLastname"/>
+
+                                <p>Age</p>
+                                <input type="number" class="form-control" name="age" id="addUserAge"/>
+
+                                <p>Email</p>
+                                <input type="text" class="form-control" name="email" id="addUserEmail"/>
+
+                                <p>Username</p>
+                                <input type="text" class="form-control" name="username" id="addUserUsername"/>
+
+                                <p>Password</p>
+                                <input type="text" class="form-control" name="password" id="addUserPassword"/>
+
+                                <p>Role</p>
+                                <select multiple class="form-control" name="role_id" readonly>
+                                    <option value="ROLE_ADMIN">ADMIN</option>
+                                    <option value="ROLE_USER">USER</option>
+                                </select>
+                                <input type="submit" class="btn btn-success d-block mx-auto" style="margin-top: 20px" value="Add new user" onclick="addNewUser()">
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Панель пользователя -->
+            <div class="tab-pane fade tab-content" id="USER" role="tabpanel">
+                <h1>User information-page</h1>
+                <div class="border bg-light">
+                    <h3 style="text-align: left; margin: 1%">About user</h3>
+                </div>
+                <div style="margin:1%">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Name</th>
+                                <th>Last Name</th>
+                                <th>Age</th>
+                                <th>Email</th>
+                                <th>Username</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td th:text="${activeUser.getId()}"></td>
+                                <td th:text="${activeUser.getName()}"></td>
+                                <td th:text="${activeUser.getLastname()}"></td>
+                                <td th:text="${activeUser.getAge()}"></td>
+                                <td th:text="${activeUser.getEmail()}"></td>
+                                <td th:text="${activeUser.getUsername()}"></td>
+                                <td th:text="${activeUser.getRoleString()}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script type="text/javascript" src="js/script.js"></script>
+</body>
+</html>
